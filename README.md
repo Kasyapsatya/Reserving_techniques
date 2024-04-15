@@ -1,8 +1,8 @@
 # Reserving_techniques
 > This project is created to ** estimate the ultimate claims of a company in a particular year**
 ## install these in your environment.
-`pip install statsmodels
- pip install tabulate`
+`pip install statsmodels`
+`pip install tabulate`
 
 ## The following methods are used in this project
 1. Chain-Ladder
