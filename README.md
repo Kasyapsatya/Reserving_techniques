@@ -17,7 +17,7 @@
 - *run the run_single.py file* You can change the line of business and company code as you like(more flexibility coming soon).
    - You will create influx of  images :smile:
 - *run the run_multiple.py file* This will generate results in the form of a dataframe which is pickled, 
-   - *run output.py* to unpickle and extract the results from >output.xslv 
+   - *run output.py* to unpickle and extract the results from > output.xslv 
 
 >Front-end coming soon :joy:
 
