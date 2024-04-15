@@ -11,6 +11,11 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from tabulate import tabulate
 import seaborn as sns
+'''
+pip install statsmodels
+pip install tabulate
+
+'''
 
 #for triangular data      DONE
 class triangle_tri() :
@@ -845,7 +850,7 @@ class method():
        "plt.title('Comparison with Original UC')",
        "plt.xticks(rotation=45, ha='right')" ,
        "plt.tight_layout()",
-       "plt.show()"  ]
+       "plt.show()"]
 
       for statement in statements:
        try:
@@ -868,6 +873,7 @@ class method():
         except :
          pass
         plt.legend()
+        plt.savefig('{}.png'.format(columns[i]))
         #print(DF['Cape-cod Ult paid claims'].sum())
         #print(DF['Original UC'].sum())
       self.method[self.gr]=DF
