@@ -19,6 +19,5 @@
 - *run the run_multiple.py file* using `python run_multiple.py` This will generate results in the form of a dataframe which is pickled, 
    - *run output.py* using `python output.py` to unpickle and extract the results from  `output.xslv` 
 
->Front-end coming soon :smile:
-
+>Front-end coming soon 
 
