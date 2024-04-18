@@ -1,5 +1,5 @@
 # Reserving_techniques
-> This project is created to ** estimate the ultimate claims of a company in a particular year**
+> This project is created to **estimate the ultimate claims of a company in a particular year**
 ## install these requiremnets in your environment using the following command:
 `pip install -r requirements.txt`
 
