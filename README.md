@@ -16,7 +16,8 @@
 - *run the run_single.py file* using `python run_single.py` You can change the line of business and company code as you like(more flexibility coming soon).
    - You will create influx of  images :joy:
 - *run the run_multiple.py file* using `python run_multiple.py` This will generate results in the form of a dataframe which is pickled, 
-   - *run output.py* using `python output.py` to unpickle and extract the results from  `output.xslv` 
+   - *run output.py* using `python output.py` to unpickle and extract the results from  `output.xslv`
+- *info.pickle* is the binary file containing the results of multiple_companies. It is stored for reference
 
 >Front-end coming soon 
 
