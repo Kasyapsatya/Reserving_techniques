@@ -13,6 +13,7 @@
 7. Neural networks(coming soon)
 
 ###
+- *data.py* is where data pre-processing is done and *merged_data.csv* is obtained from.
 - *run the run_single.py file* using `python run_single.py` You can change the line of business and company code as you like(more flexibility coming soon).
    - You will create influx of  images :smile:
 - *run the run_multiple.py file* using `python run_multiple.py` This will generate results in the form of a dataframe which is pickled, 

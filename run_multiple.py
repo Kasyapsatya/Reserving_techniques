@@ -15,8 +15,8 @@ random_elements=[
     [86,337,353,388,671]
 ]
 
-column_names = ['LOB','gr', 'Chain Ladder', 'ARIMA Chain Ladder', 'Expected Ult Loss', 'BF','Cape-cod Ult paid claims', 'GLM','GLM2','GLM2(2)', 'Original UC', 'GLM Bootstrap', 'GLM Bootstrap CL',
-                  'Error in Chian Ladder', 'Error in ARIMA Chain Ladder', 'Error in Expected Ult Loss','Error in BF', 'Error in Cape-cod Ult paid claims', 'Error in GLM','Error in GLM2','Error in GLM2(2)','Error in GLM Bootstrap','Error in GLM Bootstrap CL','Best R2', 'Best in terms of error in UC']
+column_names = ['LOB','gr', 'Chain Ladder', 'Expected Ult Loss', 'BF','Cape-cod Ult paid claims', 'GLM','GLM2','GLM2(2)', 'Original UC', 'GLM Bootstrap', 'GLM Bootstrap CL',
+                  'Error in Chian Ladder', 'Error in Expected Ult Loss','Error in BF', 'Error in Cape-cod Ult paid claims', 'Error in GLM','Error in GLM2','Error in GLM2(2)','Error in GLM Bootstrap','Error in GLM Bootstrap CL','Best R2', 'Best in terms of error in UC']
 #print(len(column_names))
 info = pd.DataFrame(columns=column_names)
 for i in range(1,7):

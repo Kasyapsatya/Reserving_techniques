@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pandas import read_csv
 import warnings
-from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import r2_score
 import copy
 import matplotlib.pyplot as plt
@@ -25,13 +24,11 @@ class triangle_tri() :
     if paid==1:
       pivot_table = Triangle
       self.pivottables[self.gr] = pivot_table
-      self.arima_pivottables = copy.deepcopy(self.pivottables)
       #print("Upper Triangle:", self.pivottables[self.gr] )
       return self.pivottables
     if reported==1:
       pivot_table = Triangle
       self.pivottables[self.gr] = pivot_table
-      self.arima_pivottables = copy.deepcopy(self.pivottables)
       #print("Upper Triangle:", self.pivottables[self.gr] )
       return self.pivottables
 
@@ -187,7 +184,6 @@ class triangle() :    #df is the pd dataframe pointing to the input file
         if paid==1:
           pivot_table = group.pivot_table(index='AccidentYear', columns='DevelopmentLag', values='CumPaidLoss')
           self.pivottables[self.gr] = pivot_table
-          self.arima_pivottables = copy.deepcopy(self.pivottables)
           self.glm_pivottables= copy.deepcopy(self.pivottables)
           #print("Upper Triangle:", self.pivottables[self.gr] )
           print(tabulate(self.pivottables[self.gr], showindex=True , headers='keys', tablefmt = 'psql'))
@@ -195,7 +191,6 @@ class triangle() :    #df is the pd dataframe pointing to the input file
         if reported==1:
           pivot_table = group.pivot_table(index='AccidentYear', columns='DevelopmentLag', values='IncurLoss')
           self.pivottables[self.gr] = pivot_table
-          self.arima_pivottables = copy.deepcopy(self.pivottables)
           self.glm_pivottables= copy.deepcopy(self.pivottables)
           #print("Upper Triangle:", self.pivottables[self.gr] )
 
@@ -246,55 +241,6 @@ class triangle() :    #df is the pd dataframe pointing to the input file
       self.agefactors[self.gr]=factors
       #print("Age-Age factors:", self.agefactors[self.gr] )
       print(tabulate(self.agefactors[self.gr], showindex=True , headers='keys', tablefmt = 'psql'))
-
-    self.arima_agefactors={}
-    p = 1  # AR order  #needs analysis
-    d = 1  # Differencing order
-    q = 1  # MA order
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        for gr_code, factors in self.agefactors.items():
-          j_list=[]
-          for i in range(9):
-            for j in range(9):
-              if i+j>=9 and j not in j_list:
-                data=list(factors.iloc[:,j])
-                series = pd.Series(data)
-                model = ARIMA(series, order=(p, d, q))
-                fit_model = model.fit()
-                predictions= np.array(fit_model.forecast(steps=j))
-                k=0
-                for i in range(j):
-                  factors.iloc[9-j+i,j]= predictions[k]
-                  k+=1
-                j_list.append(j)
-                  #factors.iloc[:,j]=np.array(data)+ np.array(fit_model.forecast(steps=j))
-                #print("full updated data", np.array(factors.iloc[:,j]))
-          self.arima_agefactors[self.gr]=factors
-    #adding the row of 1997
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        for gr_code, factors in self.arima_agefactors.items():
-          AY= factors.index.tolist()
-          new_row_data = {column: np.nan for column in self.df.columns}
-          factors.loc[AY[-1]+1]= new_row_data
-          for i in range(10):
-                for j in range(9):
-                  if i==9:
-                    data=list(factors.iloc[:,j])
-                    series = pd.Series(data)
-                    #print("data", data)
-                    model = ARIMA(series, order=(p, d, q))
-                    fit_model = model.fit()
-                    predictions= np.array(fit_model.forecast(steps=1))
-                    #print("predictions",predictions)
-                    factors.iloc[9,j]= predictions[0]
-          self.arima_agefactors[self.gr]=factors
-    #adding 120-Ult factor
-    for gr_code, factors in self.arima_agefactors.items():
-        factors['(120, Ult)']=1
-    #print("ARIMA factors:", self.arima_agefactors[self.gr] )
-    print(tabulate(self.agefactors[self.gr], showindex=True , headers='keys', tablefmt = 'psql'))
 
 
     self.mean_age_factors={}
@@ -358,16 +304,6 @@ class triangle() :    #df is the pd dataframe pointing to the input file
     print(tabulate(self.pivottables[self.gr], showindex=True , headers='keys', tablefmt = 'psql'))
 
     return self.pivottables
-  def arima_develop_triangle(self):
-    for gr_code, pivot_table in self.arima_pivottables.items() :
-        #each pivot_table is a triangle, you have to fill the lower triangular values now
-        #if devolopment lag+ AY >1998, then df[i,j]= df[i,j-1]*cdf[j]
-        for i in range(pivot_table.shape[0]):
-          for j in range(pivot_table.shape[1]):
-            if i+j>9:
-              pivot_table.iloc[i,j]=pivot_table.iloc[i,j-1]*self.arima_agefactors[gr_code].iloc[i,j-1]
-        self.arima_pivottables[self.gr]=pivot_table
-    return self.arima_pivottables
 
   def premium(self):
     self.premium = {}
@@ -703,19 +639,15 @@ class method():
 
     Actuary_paid.init()
     self.pivottables_paid_devoloped= Actuary_paid.develop_triangle()
-    self.pivottables_paid_devoloped_arima= Actuary_paid.arima_develop_triangle()
     self.premium=Actuary_paid.premium()
     self.CDF_paid=Actuary_paid.CDF()
-    self.arima_pivottables_paid= Actuary_paid.arima_develop_triangle()
     self.glm_pivottables_paid= Actuary_paid.glm_develop_triangle()
 
     Actuary_reported=triangle()
     self.pivottables_reported=Actuary_reported.get_triangle(df,gr,reported=1)
     Actuary_reported.init()
     self.pivottables_reported_devoloped= Actuary_reported.develop_triangle()
-    self.pivottables_reported_devoloped_arima= Actuary_reported.arima_develop_triangle()
     self.CDF_reported=Actuary_reported.CDF()
-    self.arima_pivottables_reported= Actuary_reported.arima_develop_triangle()
 
     Actuary_report=report()
     self.reported, self.capecod_ECR =Actuary_report.reported(self.pivottables_reported,gr,self.premium)
@@ -738,7 +670,6 @@ class method():
 
     for gr_code, pivot_table in self.pivottables_paid_devoloped.items():
       actual_reported_claims=[]
-      dev_f_arima=[]
       dev_f_glm=[]
       dev_c=[]
       dev_f=[]
@@ -754,7 +685,6 @@ class method():
             actual_reported_claims.append(self.pivottables_reported[self.gr].iloc[i,j])
           if j==9:
             dev_f.append(pivot_table.iloc[i,j])
-            dev_f_arima.append(self.arima_pivottables_paid[gr_code].iloc[i,j])
             dev_f_glm.append(self.glm_pivottables_paid[gr_code].iloc[i,j])
       for i in range(pivot_table.shape[1],0,-1):
         Age.append(12*i)
@@ -788,7 +718,6 @@ class method():
       DF['Age']=Age
       DF['Devolopment as of end of {}'.format(AY[0])]=dev_c
       DF['Chain Ladder']= dev_f
-      DF['ARIMA Chain Ladder']= dev_f_arima
       #DF['IBNR paid chainladder']=ibnr
       DF['Premium']=Premium
       DF['EC ratio']= ecratio
@@ -810,7 +739,6 @@ class method():
       #DF['IBNR capecod']= DF['UC capecod']*(1-reported[gr_code]['pctrep'])
       statements=[
        "r2_1 = r2_score( np.array(DF['Original UC']), np.array(DF['Chain Ladder']))",
-       "r2_2 = r2_score( np.array(DF['Original UC']), np.array(DF['ARIMA Chain Ladder']))",
        "r2_3 = r2_score( np.array(DF['Original UC']), np.array(DF['Expected Ult Loss']))",
        "r2_4 = r2_score( np.array(DF['Original UC']), np.array(DF['BF']))",
        "r2_5= r2_score( np.array(DF['Original UC']), np.array(DF['Cape-cod Ult paid claims']))",
@@ -818,7 +746,6 @@ class method():
        "r2_7= r2_score( np.array(DF['Original UC']), np.array(DF['GLM2']))",
        "r2_8= r2_score( np.array(DF['Original UC']), np.array(DF['GLM2(2)']))",
        "self.accuracy['Chain Ladder']=r2_1",
-       "self.accuracy['ARIMA Chain Ladder']=r2_2",
        "self.accuracy['Expected Ult Loss']=r2_3",
        "self.accuracy['BF']=r2_4",
        "self.accuracy['Cape-cod Ult paid claims']=r2_5",
@@ -828,7 +755,6 @@ class method():
        "print(self.accuracy)",
 
        "self.UC['Chain Ladder']= DF['Chain Ladder'].sum()",
-       "self.UC['ARIMA Chain Ladder']=DF['ARIMA Chain Ladder'].sum()",
        "self.UC['Expected Ult Loss']=DF['Expected Ult Loss'].sum()",
        "self.UC['BF']=DF['BF'].sum()",
        "self.UC['Cape-cod Ult paid claims']=DF['Cape-cod Ult paid claims'].sum()",
@@ -858,7 +784,7 @@ class method():
        except :
          pass
 
-      columns=['Original UC', 'GLM', 'GLM2','GLM2(2)', 'Cape-cod Ult paid claims', 'BF', 'Expected Ult Loss', 'ARIMA Chain Ladder', 'Chain Ladder']
+      columns=['Original UC', 'GLM', 'GLM2','GLM2(2)', 'Cape-cod Ult paid claims', 'BF', 'Expected Ult Loss', 'Chain Ladder']
       for i in range(1,len(columns)):
         plt.figure(figsize=(5, 3))
         try:
@@ -882,7 +808,7 @@ class method():
       plt.figure(figsize=(5, 3))
       for i in range(1,len(columns)):
         try:
-         if columns[i] in ['Original UC', 'ARIMA Chain Ladder']:  # Highlight specific columns
+         if columns[i] in ['Original UC', 'Cape-cod Ult paid claims']:  # Highlight specific columns
             plt.plot(DF['AccidentYear'], DF[columns[i]], label=columns[i], linewidth=4)
          else:
             plt.plot(DF['AccidentYear'], DF[columns[i]], label=columns[i], alpha=0.2)
